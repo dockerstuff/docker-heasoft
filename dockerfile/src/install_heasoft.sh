@@ -26,7 +26,7 @@ URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 TMPDIR="/tmp/heasoft"
 
 # Calibration database location
-CALDB="/caldb"
+CALDB="caldb"
 
 # Where to install the package
 INSTALLDIR="/usr/local/heasoft"
@@ -92,8 +92,10 @@ function caldb() {
   echo "$PKGSTP step: setting up caldb.."
   [ ! -d "$CALDB" ] && mkdir -p "$CALDB"
   echo "export CALDB=$CALDB" >> $BASHRC
-  curl https://heasarc.gsfc.nasa.gov/FTP/caldb/software/tools/caldb_setup_files.tar.Z | \
-       tar xz -C ${CALDB}
+  echo "Downloding caldb.."
+  wget -q https://heasarc.gsfc.nasa.gov/FTP/caldb/software/tools/caldb_setup_files.tar.Z
+  echo "..done"
+  tar -xzf caldb_setup_files.tar.Z -C ${CALDB}
   [ "$?" != "0" ] && return 1
   CALDBINIT="$CALDB/software/tools/caldbinit.sh"
   CALDBURL='ftp://legacy.gsfc.nasa.gov/caldb'
