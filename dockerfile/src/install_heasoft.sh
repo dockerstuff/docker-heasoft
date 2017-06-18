@@ -1,5 +1,4 @@
 #!/bin/bash -e
-#set -xv
 
 # Label for this script messages
 PKGSTP="HEASoft"
@@ -12,11 +11,11 @@ TARBALL="${PACKAGE}src.tar.gz"
 
 # Temp dir; basically for download
 TMPDIR="${HEASOFT_TMPDIR:-'/tmp/heasoft'}"
-unset HEASOFT_TMPDIR
+#unset HEASOFT_TMPDIR
 
 # Where to install the package
 INSTALLDIR="${HEASOFT_INSTALLDIR:-'/usr/local/heasoft'}"
-unset HEASOFT_INSTALLDIR
+#unset HEASOFT_INSTALLDIR
 
 # What to download.
 # The following will download the necessary for "swift" setup:
@@ -117,7 +116,7 @@ function caldb() {
 function exit_error() {
   echo "error: $1"
   echo "Ending setup process."
-  exit 1
+  return 1
 }
 
 function clean() {
