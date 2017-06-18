@@ -26,7 +26,7 @@ URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 TMPDIR="/tmp/heasoft"
 
 # Calibration database location
-CALDB="caldb"
+CALDB="/caldb"
 
 # Where to install the package
 INSTALLDIR="/usr/local/heasoft"
@@ -81,7 +81,6 @@ function build() {
   ./configure > ${TMPDIR}/config.out      && \
   ./hmake > ${TMPDIR}/build.out           && \
   ./hmake install > ${TMPDIR}/install.out
-#  [ "$?" != "0" ] && return 1
   LIBC=$(ldd --version | head -n1 | awk '{print $NF}')
   echo "export HEADAS=${INSTALLDIR}/x86_64-unknown-linux-gnu-libc${LIBC}" >> $BASHRC
   echo 'source $HEADAS/headas-init.sh' >> $BASHRC
@@ -91,7 +90,6 @@ function build() {
 function caldb() {
   echo "$PKGSTP step: setting up caldb.."
   [ ! -d "$CALDB" ] && mkdir -p "$CALDB"
-  echo "export CALDB=$CALDB" >> $BASHRC
   echo "Downloding caldb.."
   wget -q https://heasarc.gsfc.nasa.gov/FTP/caldb/software/tools/caldb_setup_files.tar.Z
   echo "..done"
@@ -102,6 +100,7 @@ function caldb() {
   echo "export CALDB=$CALDBURL" > $CALDBINIT
   echo "export CALDBCONFIG=$CALDB/software/tools/caldb.config" >> $CALDBINIT
   echo "export CALDBALIAS=$CALDB/software/tools/alias_config.fits" >> $CALDBINIT
+  echo "export CALDB=$CALDB" >> $BASHRC
   echo "source $CALDBINIT" >> $BASHRC
   echo "..caldb setup."
 }
@@ -122,27 +121,43 @@ function main() {
   install_dependencies || exit_error "dependencies failed to install."
 
   # Default compilers; IF those variables are not defined yet!
-#  CC=${CC-"gcc"}
-#  CXX=${CXX-"g++"}
-#  FC=${FC-"gfortran"}
-#  PERL=${PERL-"perl"}
-#  PYTHON=${PYTHON-"python"}
+  CC=${CC:-"gcc"}
+  CXX=${CXX:-"g++"}
+  FC=${FC:-"gfortran"}
+  PERL=${PERL:-"perl"}
+  PYTHON=${PYTHON:-"python"}
 #  [ -z "$CC" -o -z "$CXX" -o -z "$FC" -o -z "$PERL" -o -z "$PYTHON" ] && exit 1
-#  export CC CXX FC PERL PYTHON
+  export CC CXX FC PERL PYTHON
 
   INITDIR=$PWD
-  [ ! -d "$TMPDIR" ] && mkdir $TMPDIR
-  cd $TMPDIR && echo "Entering in $TMPDIR"
-  [ ! -f "$TARBALL" ] && ( download || exit_error "download failed." )
-  [ ! -d "$INSTALLDIR" ] && mkdir $INSTALLDIR
-  cd $INSTALLDIR && echo "Entering in $INSTALLDIR"
-  unpack ${TMPDIR}/${TARBALL} || exit_error 'not able to unpack?!'
-  cd $BUILDDIR && echo "Entering in $BUILDDIR"
-  env > ${TMPDIR}/build_environment.out
-  build && caldb
-  [ "$?" != "0" ] && exit_error "build failed."
-  clean
+
+  [ -d "$TMPDIR" ] || mkdir $TMPDIR
+  (
+    echo "Entering in $TMPDIR"
+    cd $TMPDIR
+    if [ ! -f "$TARBALL" ]; then
+      download || exit_error "download failed."
+    fi
+  )
+
+  [ -d "$INSTALLDIR" ] || mkdir $INSTALLDIR
+  (
+    echo "Entering in $INSTALLDIR"
+    cd $INSTALLDIR
+    unpack ${TMPDIR}/${TARBALL} || exit_error 'not able to unpack?!'
+  )
+
+  (
+    echo "Entering in $BUILDDIR"
+    cd $BUILDDIR
+    env > ${TMPDIR}/build_environment.out
+
+    build && caldb
+
+    [ "$?" != "0" ] && exit_error "build failed."
+    clean
+  )
   echo "Looks like heasoft setup worked like a charm ;)"
   echo "Finished."
-  cd $INITDIR
+  return 0
 }
