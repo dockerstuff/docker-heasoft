@@ -108,12 +108,13 @@ function caldb() {
 function exit_error() {
   echo "error: $1"
   echo "Ending setup process."
-  return 1
+  exit 1
 }
 
 function clean() {
   echo "$PKGSTP: cleaning heasoft.."
   ( cd $BUILDDIR && make clean > /dev/null 2>&1 )
+  rm -rf $TMPDIR
 }
 
 function main() {
