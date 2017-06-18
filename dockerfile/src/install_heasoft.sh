@@ -5,9 +5,18 @@
 PKGSTP="HEASoft"
 
 # Package info.. what to download, basically
-VERSION="6.21"
+[ -f 'heasoft_version.sh' ] && source heasoft_version.sh
+VERSION="${HEASOFT_VERSION:-'6.21'}"
 PACKAGE="heasoft-${VERSION}"
 TARBALL="${PACKAGE}src.tar.gz"
+
+# Temp dir; basically for download
+TMPDIR="${HEASOFT_TMPDIR:-'/tmp/heasoft'}"
+unset HEASOFT_TMPDIR
+
+# Where to install the package
+INSTALLDIR="${HEASOFT_INSTALLDIR:-'/usr/local/heasoft'}"
+unset HEASOFT_INSTALLDIR
 
 # What to download.
 # The following will download the necessary for "swift" setup:
@@ -22,14 +31,10 @@ HEASCOMP='full'
 URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 #URL="file:///tmp/heasoft/"
 
-# Temp dir; basically for download
-TMPDIR="/tmp/heasoft"
-
 # Calibration database location
 CALDB="/caldb"
 
-# Where to install the package
-INSTALLDIR="/usr/local/heasoft"
+# There is a build package dir, keep it there..
 BUILDDIR="${INSTALLDIR}/BUILD_DIR"
 
 # Where to save environment/login settings
@@ -78,9 +83,13 @@ function unpack() {
 
 function build() {
   echo "$PKGSTP step: building heasoft.."
-  ./configure > ${TMPDIR}/config.out      && \
-  ./hmake > ${TMPDIR}/build.out           && \
-  ./hmake install > ${TMPDIR}/install.out
+  echo '..configure..'
+  ./configure &> ${TMPDIR}/config.out       && \
+  echo '..make..'
+  ./hmake &> ${TMPDIR}/build.out            && \
+  echo '..install..'
+  ./hmake install &> ${TMPDIR}/install.out
+  echo '..done.'
   LIBC=$(ldd --version | head -n1 | awk '{print $NF}')
   echo "export HEADAS=${INSTALLDIR}/x86_64-unknown-linux-gnu-libc${LIBC}" >> $BASHRC
   echo 'source $HEADAS/headas-init.sh' >> $BASHRC
