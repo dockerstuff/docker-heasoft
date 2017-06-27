@@ -6,11 +6,12 @@ ENV USER user
 ENV U_ID 1000
 ENV G_ID 100
 
-ENV WORKDIR /work
+ENV WORKDIR         /work
+ENV HEASOFT_TMPDIR  /tmp/heasoft
 
-COPY src  /tmp/heasoft
+COPY src $HEASOFT_TMPDIR
 
-RUN source /tmp/heasoft/install_heasoft.sh && main && \
+RUN source $HEASOFT_TMPDIR/install_heasoft.sh && main && \
     useradd -u $U_ID -g $G_ID -d /home/$USER -m -s /bin/bash $USER && \
     mkdir -p $WORKDIR && chown $U_ID:$G_ID $WORKDIR
 
