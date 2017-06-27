@@ -62,7 +62,7 @@ function download() {
   echo "$PKGSTP step: downloading $TARBALL .."
   if [ "$HEASCOMP" = "full" ]
   then
-    curl -O "${URL}/${TARBALL}"
+    wget -q "${URL}/${TARBALL}"
   else
     for i in ${HEASCOMP[*]}
     do
@@ -83,11 +83,11 @@ function unpack() {
 function build() {
   echo "$PKGSTP step: building heasoft.."
   echo '..configure..'
-  ./configure &> ${TMPDIR}/config.out       && \
+  ./configure > ${TMPDIR}/config.out 2>&1      && \
   echo '..make..'
-  ./hmake &> ${TMPDIR}/build.out            && \
+  ./hmake > ${TMPDIR}/build.out 2>&1           && \
   echo '..install..'
-  ./hmake install &> ${TMPDIR}/install.out
+  ./hmake install > ${TMPDIR}/install.out 2>&1
   echo '..done.'
   LIBC=$(ldd --version | head -n1 | awk '{print $NF}')
   echo "export HEADAS=${INSTALLDIR}/x86_64-unknown-linux-gnu-libc${LIBC}" >> $BASHRC
