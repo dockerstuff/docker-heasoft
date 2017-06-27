@@ -1,20 +1,21 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
 # Label for this script messages
 PKGSTP="HEASoft"
 
 # Package info.. what to download, basically
 [ -f 'heasoft_version.sh' ] && source heasoft_version.sh
-VERSION="${HEASOFT_VERSION:-'6.21'}"
+VERSION="${HEASOFT_VERSION:-6.21}"
 PACKAGE="heasoft-${VERSION}"
 TARBALL="${PACKAGE}src.tar.gz"
 
 # Temp dir; basically for download
-TMPDIR="${HEASOFT_TMPDIR:-'/tmp/heasoft'}"
+TMPDIR="${HEASOFT_TMPDIR:-/tmp/heasoft}"
 #unset HEASOFT_TMPDIR
 
 # Where to install the package
-INSTALLDIR="${HEASOFT_INSTALLDIR:-'/usr/local/heasoft'}"
+INSTALLDIR="${HEASOFT_INSTALLDIR:-/usr/local/heasoft}"
 #unset HEASOFT_INSTALLDIR
 
 # What to download.
@@ -33,8 +34,16 @@ URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 # Calibration database location
 CALDB="/caldb"
 
+# Where to unpack the source code..
+#BROWSE='1'
+if [ -n "$BROWSE" -a "$BROWSE" -eq 1 ]; then
+  UNPACKDIR="$INSTALLDIR"
+else
+  UNPACKDIR="${TMPDIR}/${VERSION}"
+fi
+
 # There is a build package dir, keep it there..
-BUILDDIR="${INSTALLDIR}/BUILD_DIR"
+BUILDDIR="${UNPACKDIR}/BUILD_DIR"
 
 # Where to save environment/login settings
 BASHRC='/etc/bashrc'
@@ -83,16 +92,17 @@ function unpack() {
 function build() {
   echo "$PKGSTP step: building heasoft.."
   echo '..configure..'
-  ./configure > ${TMPDIR}/config.out 2>&1      && \
+  ./configure --prefix="$INSTALLDIR"  > ${TMPDIR}/config.log 2>&1
   echo '..make..'
-  ./hmake > ${TMPDIR}/build.out 2>&1           && \
+  ./hmake                             > ${TMPDIR}/build.log 2>&1
   echo '..install..'
-  ./hmake install > ${TMPDIR}/install.out 2>&1
+  ./hmake install                     > ${TMPDIR}/install.log 2>&1
   echo '..done.'
   LIBC=$(ldd --version | head -n1 | awk '{print $NF}')
   echo "export HEADAS=${INSTALLDIR}/x86_64-unknown-linux-gnu-libc${LIBC}" >> $BASHRC
   echo 'source $HEADAS/headas-init.sh' >> $BASHRC
   echo "..heasoft built."
+  cp ${TMPDIR}/*.log ${INSTALLDIR}/.
 }
 
 function caldb() {
@@ -121,26 +131,30 @@ function exit_error() {
 
 function clean() {
   echo "$PKGSTP: cleaning heasoft.."
-  ( cd $BUILDDIR && make clean > /dev/null 2>&1 )
+  ( cd $BUILDDIR &&
+    make clean > /dev/null 2>&1 && \
+    make distclean > /dev/null 2>&1
+  )
+  rm -rf $UNPACKDIR
   rm -rf $TMPDIR
 }
 
-function main() {
+function install() {
   echo "$PKGSTP: configuring heasoft.."
   install_dependencies || exit_error "dependencies failed to install."
 
   # Default compilers; IF those variables are not defined yet!
-  CC=${CC:-"gcc"}
-  CXX=${CXX:-"g++"}
-  FC=${FC:-"gfortran"}
-  PERL=${PERL:-"perl"}
-  PYTHON=${PYTHON:-"python"}
+  CC=${CC:-gcc}
+  CXX=${CXX:-g++}
+  FC=${FC:-gfortran}
+  PERL=${PERL:-perl}
+  PYTHON=${PYTHON:-python}
 #  [ -z "$CC" -o -z "$CXX" -o -z "$FC" -o -z "$PERL" -o -z "$PYTHON" ] && exit 1
   export CC CXX FC PERL PYTHON
 
   INITDIR=$PWD
 
-  [ -d "$TMPDIR" ] || mkdir $TMPDIR
+  [ -d "$TMPDIR" ] || mkdir -p $TMPDIR
   (
     echo "Entering in $TMPDIR"
     cd $TMPDIR
@@ -149,17 +163,17 @@ function main() {
     fi
   )
 
-  [ -d "$INSTALLDIR" ] || mkdir $INSTALLDIR
+  [ -d "$UNPACKDIR" ] || mkdir -p $UNPACKDIR
   (
-    echo "Entering in $INSTALLDIR"
-    cd $INSTALLDIR
+    echo "Entering in $UNPACKDIR"
+    cd $UNPACKDIR
     unpack ${TMPDIR}/${TARBALL} || exit_error 'not able to unpack?!'
   )
 
   (
     echo "Entering in $BUILDDIR"
     cd $BUILDDIR
-    env > ${TMPDIR}/build_environment.out
+    env > ${TMPDIR}/build_environment.log
 
     build && caldb
 
