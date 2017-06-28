@@ -35,8 +35,8 @@ URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 CALDB="/caldb"
 
 # Where to unpack the source code..
-#BROWSE='1'
-if [ -n "$BROWSE" -a "$BROWSE" -eq 1 ]; then
+#BROWSE='yes'
+if [ "$BROWSE" == 'yes' ]; then
   UNPACKDIR="$INSTALLDIR"
 else
   UNPACKDIR="${TMPDIR}/${VERSION}"
@@ -59,7 +59,7 @@ function install_dependencies() {
                   perl-ExtUtils-MakeMaker   \
                   python-devel              &&\
   yum -y install  libpng-devel              &&\
-  yum -y install  vim tar wget which git curl
+  yum -y install  vim tar wget which git curl bc
   sts=$?
   yum clean all
   return $sts
@@ -141,7 +141,7 @@ function clean() {
 
 function install() {
   echo "$PKGSTP: configuring heasoft.."
-  install_dependencies || exit_error "dependencies failed to install."
+#  install_dependencies || exit_error "dependencies failed to install."
 
   # Default compilers; IF those variables are not defined yet!
   CC=${CC:-gcc}
