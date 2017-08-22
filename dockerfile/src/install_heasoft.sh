@@ -4,6 +4,16 @@ set -e
 # Label for this script messages
 PKGSTP="HEASoft"
 
+# ====================================================================
+# Variables we may declare in the environment this script will run.
+# This variables modify the defaults, as listed below:
+#
+# <variable>           <default>
+# HEASOFT_VERSION    : 6.21
+# HEASOFT_TMPDIR     : /tmp/heasoft
+# HEASOFT_INSTALLDIR : /usr/local/heasoft
+# ====================================================================
+
 # Package info.. what to download, basically
 [ -f 'heasoft_version.sh' ] && source heasoft_version.sh
 VERSION="${HEASOFT_VERSION:-6.21}"
