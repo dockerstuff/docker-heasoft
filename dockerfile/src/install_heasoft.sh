@@ -22,11 +22,22 @@ TARBALL="${PACKAGE}src.tar.gz"
 
 # Temp dir; basically for download
 TMPDIR="${HEASOFT_TMPDIR:-/tmp/heasoft}"
-#unset HEASOFT_TMPDIR
+unset HEASOFT_TMPDIR
 
 # Where to install the package
 INSTALLDIR="${HEASOFT_INSTALLDIR:-/usr/local/heasoft}"
-#unset HEASOFT_INSTALLDIR
+unset HEASOFT_INSTALLDIR
+
+if [ -d $INSTALLDIR ]; then
+    1>&2 echo "WARNING: '$INSTALLDIR' already exist."
+    1>&2 echo "         Please, remove it or change the location (value) pointed by 'HEASOFT_INSTALLDIR'."
+    1>&2 echo "         Otherwise, '$INSTALLDIR' will be overwritten."
+fi
+_upinstalldir=$(dirname $INSTALLDIR)
+_owner=$(stat -c '%U' $_upinstalldir)
+[[ -w $_upinstalldir ]] || { 1>&2 echo "ERROR: Need to be '$_owner' to write to '$_upinstalldir'"; exit 1; }
+unset _owner
+unset _upinstalldir
 
 # What to download.
 # The following will download the necessary for "swift" setup:
@@ -42,7 +53,7 @@ URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
 #URL="file:///tmp/heasoft/"
 
 # Calibration database location
-CALDB="/caldb"
+CALDB="${INSTALLDIR}/caldb"
 
 # Where to unpack the source code..
 #BROWSE='yes'
@@ -118,7 +129,7 @@ function build() {
 function caldb() {
   echo "$PKGSTP step: setting up caldb.."
   [ ! -d "$CALDB" ] && mkdir -p "$CALDB"
-  echo "Downloding caldb.."
+  echo "Downloading caldb.."
   wget -q https://heasarc.gsfc.nasa.gov/FTP/caldb/software/tools/caldb_setup_files.tar.Z
   echo "..done"
   tar -xzf caldb_setup_files.tar.Z -C ${CALDB}
@@ -151,7 +162,7 @@ function clean() {
 
 function install() {
   echo "$PKGSTP: configuring heasoft.."
-#  install_dependencies || exit_error "dependencies failed to install."
+  install_dependencies || exit_error "dependencies failed to install."
 
   # Default compilers; IF those variables are not defined yet!
   CC=${CC:-gcc}
