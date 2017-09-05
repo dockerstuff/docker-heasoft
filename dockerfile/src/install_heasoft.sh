@@ -33,11 +33,6 @@ if [ -d $INSTALLDIR ]; then
     1>&2 echo "         Please, remove it or change the location (value) pointed by 'HEASOFT_INSTALLDIR'."
     1>&2 echo "         Otherwise, '$INSTALLDIR' will be overwritten."
 fi
-_upinstalldir=$(dirname $INSTALLDIR)
-_owner=$(stat -c '%U' $_upinstalldir)
-[[ -w $_upinstalldir ]] || { 1>&2 echo "ERROR: Need to be '$_owner' to write to '$_upinstalldir'"; exit 1; }
-unset _owner
-unset _upinstalldir
 
 # What to download.
 # The following will download the necessary for "swift" setup:
