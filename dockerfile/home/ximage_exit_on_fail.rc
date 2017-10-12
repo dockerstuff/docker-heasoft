@@ -5,4 +5,3 @@
 #
 set exit_on_startfail 1
 
-set ximage_history_file ""

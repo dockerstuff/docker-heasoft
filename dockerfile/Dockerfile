@@ -13,4 +13,8 @@ RUN source $HEASOFT_TMPDIR/install_heasoft.sh && \
 RUN git clone https://github.com/chbrandt/docker_commons.git && \
     ln -sf docker_commons/entrypoint.sh /.
 
+RUN cat non_interactive.rc ximage_exit_on_fail.rc ximage_no_history.rc \
+    >> /etc/.bash_profile
+
 ENTRYPOINT ["/entrypoint.sh"]
+
