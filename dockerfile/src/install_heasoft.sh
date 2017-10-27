@@ -15,10 +15,13 @@ PKGSTP="HEASoft"
 # ====================================================================
 
 # Package info.. what to download, basically
-[ -f 'heasoft_version.sh' ] && source heasoft_version.sh
+H=$(cd `dirname $BASH_SOURCE`; pwd)
+[ -f ${H}/heasoft_version.sh ] && source ${H}/heasoft_version.sh
 VERSION="${HEASOFT_VERSION:-6.22.1}"
 PACKAGE="heasoft-${VERSION}"
 TARBALL="${PACKAGE}src.tar.gz"
+
+echo HEASoft version: $HEASOFT_VERSION 
 
 # Temp dir; basically for download
 TMPDIR="${HEASOFT_TMPDIR:-/tmp/heasoft}"
