@@ -20,6 +20,13 @@ Look [#Install-Docker] for instructions about your platform.
 There are two ways to use the Heasoft from this container: from inside the container or 
 direct from the host system command-line. See the sections below for details.
 
+**Note:** Heasoft is a quite heavy package, and this container provides the *full* set of tools
+available for Heasoft. This includes the *complete* set of spectra templates provided by `xspec`.
+
+So, once Docker is installed, download the heasoft image by typing:
+```
+# docker pull chbrandt/heasoft
+```
 
 ### How to use the container seamlessly
 
