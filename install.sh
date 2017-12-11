@@ -5,8 +5,8 @@ source_create(){
   
   source ${HERE}/bin/create_links.sh
   
-  echo "Run the following line to make docker-heasoft binaries available"
-  echo "on your environment:"
+  echo "# Run the following line to make docker-heasoft binaries available"
+  echo "# on your environment:"
   echo "#----------"
   echo "export PATH=\"${HERE}/bin/links:\$PATH\""
   echo "#----------"
