@@ -21,14 +21,14 @@ H=$(cd `dirname $BASH_SOURCE`; pwd)
 
 #[ -f ${H}/heasoft_version.sh ] && source ${H}/heasoft_version.sh
 [ -f ${H}/README.md ] && HEASOFT_VERSION=$(grep -i "version" ${H}/README.md | head -n1 | awk '{print $NF}')
-echo $HEASOFT_VERSION
-exit
 
 VERSION="${HEASOFT_VERSION}"
 PACKAGE="heasoft-${VERSION}"
 TARBALL="${PACKAGE}src.tar.gz"
 
+echo "---------------------------------"
 echo HEASoft version: $HEASOFT_VERSION
+echo "---------------------------------"
 
 # Temp dir; basically for download
 TMPDIR="${HEASOFT_TMPDIR:-/tmp/heasoft}"
