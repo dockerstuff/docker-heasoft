@@ -4,24 +4,31 @@ set -e
 # Label for this script messages
 PKGSTP="HEASoft"
 
+HEASOFT_VERSION="6.24"
+
 # ====================================================================
 # Variables we may *declare* in the environment this script runs.
 # These variables modify the defaults, as listed below:
 #
 # <variable>           <default>
-# HEASOFT_VERSION    : 6.22.1
+# HEASOFT_VERSION    : $HEASOFT_VERSION
 # HEASOFT_TMPDIR     : /tmp/heasoft
 # HEASOFT_INSTALLDIR : /usr/local/heasoft
 # ====================================================================
 
 # Package info.. what to download, basically
 H=$(cd `dirname $BASH_SOURCE`; pwd)
-[ -f ${H}/heasoft_version.sh ] && source ${H}/heasoft_version.sh
-VERSION="${HEASOFT_VERSION:-6.22.1}"
+
+#[ -f ${H}/heasoft_version.sh ] && source ${H}/heasoft_version.sh
+[ -f ${H}/README.md ] && HEASOFT_VERSION=$(grep -i "version" ${H}/README.md | head -n1 | awk '{print $NF}')
+echo $HEASOFT_VERSION
+exit
+
+VERSION="${HEASOFT_VERSION}"
 PACKAGE="heasoft-${VERSION}"
 TARBALL="${PACKAGE}src.tar.gz"
 
-echo HEASoft version: $HEASOFT_VERSION 
+echo HEASoft version: $HEASOFT_VERSION
 
 # Temp dir; basically for download
 TMPDIR="${HEASOFT_TMPDIR:-/tmp/heasoft}"
@@ -44,7 +51,6 @@ fi
 HEASCOMP='full'
 # If you want the minimal (ftools) set of packages, define
 # HEASCOMP=(BUILD_DIR ftools heacore heagen tcltk)
-
 # From where to download the package(s) if necessary
 #URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/release"
 URL="ftp://heasarc.gsfc.nasa.gov/software/lheasoft/lheasoft${VERSION}/"
@@ -118,7 +124,7 @@ function build() {
   ./hmake install                     > ${TMPDIR}/install.log 2>&1
   echo '..done.'
   LIBC=$(ldd --version | head -n1 | awk '{print $NF}')
-  echo "export HEADAS=${INSTALLDIR}/x86_64-unknown-linux-gnu-libc${LIBC}" >> $BASHRC
+  echo "export HEADAS=${INSTALLDIR}/x86_64-pc-linux-gnu-libc${LIBC}" >> $BASHRC
   echo 'source $HEADAS/headas-init.sh' >> $BASHRC
   echo "..heasoft built."
   cp ${TMPDIR}/*.log ${INSTALLDIR}/.
