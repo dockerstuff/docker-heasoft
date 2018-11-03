@@ -139,13 +139,13 @@ function caldb() {
   tar -xzf caldb_setup_files.tar.Z -C ${CALDB}
   [ "$?" != "0" ] && return 1
   CALDBINIT="$CALDB/software/tools/caldbinit.sh"
-  CALDBURL='ftp://legacy.gsfc.nasa.gov/caldb'
+  CALDBURL='https://heasarc.gsfc.nasa.gov/FTP/caldb'
   echo "export CALDB=$CALDBURL" > $CALDBINIT
   echo "export CALDBCONFIG=$CALDB/software/tools/caldb.config" >> $CALDBINIT
   echo "export CALDBALIAS=$CALDB/software/tools/alias_config.fits" >> $CALDBINIT
   echo "export CALDB=$CALDB" >> $BASHRC
   echo "source $CALDBINIT" >> $BASHRC
-  echo "..caldb setup."
+  echo "..REMOTE caldb setup."
 }
 
 function exit_error() {
