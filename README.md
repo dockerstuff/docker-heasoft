@@ -12,6 +12,26 @@ ready to use.
 To know more about containers, in particular Docker, see https://www.docker.com/what-docker
 
 
+## How to run the container explicitly
+
+We may as well access the container explicitly:
+```
+# docker run -it --rm chbrandt/heasoft
+```
+This command returns a shell from inside the container, from here we have access to all heasoft tools.
+You may try `fhelp` for the manual, for example.
+Now...most probably we'll want to analysis some data files in hand, since containers run in a closed box inside 
+our system we have to explicit provide them the directories we want to access from inside.
+
+Let's consider our data is inside the directory `/home/user/data`.
+To share the data directory with the container we do:
+```
+# docker run -v /home/user/data:/host_data chbrandt/heasoft
+```
+Now we'll be inside the container with access to user's `data/` directory. Data can now be access and analyzed
+using the heasoft tools.
+
+
 ## How to use it
 
 To use this *ready-to-run* heasoft setup we just need Docker installed.
@@ -46,32 +66,6 @@ export PATH="/home/chbrandt/docker-heasoft/bin/links:$PATH"
 Use *export* to allow the use of this interface from anywhere in your system
 
 You may now use `nh`, `ximage`, `xrtpipeline` and any other tool Heasoft provides
-
-
-## How to run the container explicitly
-
-We may as well access the container explicitly:
-```
-# docker run chbrandt/heasoft
-```
-This command returns a shell from inside the container, from here we have access to all heasoft tools.
-You may try `fhelp` for the manual, for example.
-Now...most probably we'll want to analysis some data files in hand, since containers run in a closed box inside 
-our system we have to explicit provide them the directories we want to access from inside.
-
-**Side note:**
-*I like to use the option `--rm` when running docker, it automatically removes the container when I exit the shell*
-```
-# docker run --rm chbrandt/heasoft
-```
-
-Let's consider our data is inside the directory `/home/user/data`.
-To share the data directory with the container we do:
-```
-# docker run -v /home/user/data:/host_data chbrandt/heasoft
-```
-Now we'll be inside the container with access to user's `data/` directory. Data can now be access and analyzed
-using the heasoft tools.
 
 
 ## Install Docker
